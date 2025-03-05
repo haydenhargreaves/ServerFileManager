@@ -17,6 +17,11 @@ const APP: Express = express();
 const ROOT: string = "/home/azpect";
 
 /**
+ * Invalid file extentions for the file editor.
+ */
+const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf", "jpg", "jpeg", "png", "gif", "webm", "webp", "bmp", "mp3", "wav", "mp4", "avi", "zip", "rar", "7z", "iso", "dmg", "class", "pyc", "o", "a", "woff", "woff2", "ttf", "otf", "db", "sqlite", "mdb", "accdb", "psd", "ai", "indd", "blend", "fbx", "unitypackage", "pak", "sav", "msi", ".doc", ".docx", ".dot", ".dotx", ".docm", ".dotm", ".rtf", ".txt", ".xls", ".xlsx", ".xlsm", ".xltx", ".xltm", ".csv", ".ppt", ".pptx", ".pptm", ".potx", ".potm", ".ppsx", ".ppsm", ".mdb", ".accdb", ".accde", ".accdt", ".pst", ".ost", ".msg", ".one", ".onetoc2", ".pub", ".vsd", ".vsdx", ".vssx", ".vstx", ".odc", ".oft", ".pki"];
+
+/**
  * Configure cors
  * TODO: Update hosts for production
  */
@@ -90,7 +95,7 @@ v1.get("/children", (req: Request, res: Response): void => {
 });
 
 /**
- * Down a group of files provided in the body
+ * Down a group of files provided in the body.
  */
 v1.post("/download", (req: Request, res: Response): void => {
     // Get the files from the body
@@ -137,6 +142,49 @@ v1.post("/download", (req: Request, res: Response): void => {
     archive.finalize();
 });
 
+/**
+ * Retrieve the content of a file provided in the path query.
+ */
+v1.get("/content", (req: Request, res: Response): void => {
+    // Get the path, if it was not provided, return no content
+    const tgtPath: string = (req.query.path || "") as string;
+    if (!tgtPath) {
+        res.status(204);
+        return;
+    }
+
+    // Ensure the file isn't something we can't edit
+    const ext: string = path.extname(tgtPath).slice(1);
+    if (INVALID_EXTS.includes(ext)) {
+        res.status(400).json({error: `Cannot edit files of type *.${ext}`, code: 400});
+        return;
+    }
+
+    try {
+        // Read the file and return it
+        const content = fs.readFileSync(tgtPath, {encoding: "utf-8", flag: "r"})
+        res.status(200).json({content, code: 200});
+    } catch (err) {
+        res.status(500).json({error: `An error occurred on the server. ${err}`, code: 500});
+    }
+});
+
+/**
+ * Update a file's content, path and content should be provided.
+ * On success, nothing should be sent back, 204.
+ */
+v1.post("/update", (req: Request, res: Response): void => {
+    // Get path and content from the request
+    const {path, content} = req.body;
+
+    try {
+        fs.writeFileSync(path, content);
+        console.log(fs.readFileSync(path).toString());
+        res.status(204);
+    } catch (error) {
+        res.status(500).json({code: 500, error})
+    }
+});
 /**
  * Apply the routes to the server
  */

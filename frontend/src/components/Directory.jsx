@@ -28,7 +28,7 @@ function DirectoryIcon() {
  * @returns {{}}
  * @constructor
  */
-export default function Directory({entry, showHidden, appendPath, toggleSelected}) {
+export default function Directory({entry, showHidden, appendPath, toggleSelected, toggleEditing}) {
     const [selected, setSelected] = useState(false);
 
     const handleClick = () => {
@@ -36,6 +36,7 @@ export default function Directory({entry, showHidden, appendPath, toggleSelected
             appendPath(entry.name);
         } else {
             console.log(`OPENING FILE: ${entry.path}`)
+            toggleEditing(entry.path);
         }
     };
 

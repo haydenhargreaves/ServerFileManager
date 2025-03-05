@@ -4,6 +4,7 @@ import DirectoryList from "../components/DirectoryList.jsx";
 import PathDisplay from "../components/PathDisplay.jsx";
 import Navbar from "../components/Navbar.jsx";
 import Error from "../components/Error.jsx";
+import Editor from "../components/Editor.jsx";
 
 
 export default function Dashboard() {
@@ -13,6 +14,8 @@ export default function Dashboard() {
     const [selected, setSelected] = useState([]);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
+    const [editing, setEditing] = useState("");
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -147,17 +150,78 @@ export default function Dashboard() {
         setError(null);
     }
 
+    const toggleEditing = (path) => {
+        setEditing(path);
+    };
+
+    const exitFile = () => {
+        setEditing("");
+    };
+
+    const exitAndSaveFile = (newContent) => {
+        const updateContent = async (path, content) => {
+            const resp = await fetch("http://localhost:5000/v1/update", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({path, content}),
+            })
+            if (!resp.ok) {
+                setError("An error occurred when saving the file. Please try again.");
+            }
+            return await resp.json();
+        };
+
+        // Send request to server to update the file. This will return nothing
+        // so no need for any promise handling.
+        updateContent(editing, newContent);
+
+        // Set editing back to nothing to hide the modal
+        setEditing("");
+    };
+
+
+    /**
+     * Handle the state for the content being modified in the text editor.
+     */
+    const [editingFileContent, setEditingFileContent] = useState("");
+    useEffect(() => {
+        const fetchContent = async (path) => {
+            const resp = await fetch(`http://localhost:5000/v1/content?path=${path}`);
+            if (!resp.ok) {
+                // TODO: Add this back in, its broken right now.
+                setError("Something went wrong! Failed to get file content.")
+            }
+            return await resp.json();
+        };
+
+        // Fetch the data and handle errors accordingly
+        fetchContent(editing).then((data) => {
+            if (data.code === 200) {
+                setEditingFileContent(data.content);
+            } else {
+                // An error occurred, do not open the editor
+                setEditing("");
+                setError(data.error);
+            }
+        });
+
+    }, [editing]);
+
     return (
         <div className="w-full min-h-screen h-screen pb-8">
             <Navbar downloadFiles={downloadFiles}/>
             <div className="h-full w-full flex flex-col items-center justify-center pb-8">
 
                 {error && <Error error={error} clear={clearError}/>}
+                {(editing !== "" && !error) &&
+                    <Editor content={editingFileContent} path={editing} exit={exitFile} saveExit={exitAndSaveFile}/>}
 
                 <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}/>
                 <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
                     <DirectoryList dirs={files} showHidden={showHidden} appendPath={appendPath}
-                                   toggleSelected={toggleSelected}/>
+                                   toggleSelected={toggleSelected} toggleEditing={toggleEditing}/>
                 </div>
             </div>
         </div>
