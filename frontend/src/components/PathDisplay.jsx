@@ -62,7 +62,7 @@ export default function PathDisplay({path, updatePath, backHome, backArrow}) {
             className="w-2/3 mt-8 border-b-1 border-gray-400 bg-white flex items-center truncate">
             <HomeButton onClick={backHome}/>
             <BackButton onClick={backArrow}/>
-            {path.map((seg, idx) => <PathElement name={seg} index={idx} onClick={updatePath}/>)}
+            {path.map((seg, idx) => <PathElement name={seg} key={idx} index={idx} onClick={updatePath}/>)}
         </div>
     )
 }
