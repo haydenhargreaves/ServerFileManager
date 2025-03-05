@@ -6,7 +6,6 @@ import archiver from "archiver";
  * Append a file from the path to the archiver. Errors will be bubbled out
  * @param filePath Target path
  * @param archive The archiver
- * @constructor
  */
 export function appendFileToArchive(filePath: string, archive: archiver.Archiver): void {
     try {
@@ -18,10 +17,10 @@ export function appendFileToArchive(filePath: string, archive: archiver.Archiver
 }
 
 /**
- * Recursively append directories to
- * @param filePath
- * @param archiveRelPath
- * @param archive
+ * Recursively append directories to the archiver
+ * @param filePath Target path
+ * @param archiveRelPath Relative path to the current archive
+ * @param archive The archiver
  */
 export function appendDirectoryToArchive(filePath: string, archiveRelPath: string = "", archive: archiver.Archiver): void {
     try {
@@ -49,8 +48,6 @@ export function appendDirectoryToArchive(filePath: string, archiveRelPath: strin
                 appendDirectoryToArchive(fullPath, relPath, archive);
             }
         });
-
-
     } catch (error) {
         throw new Error(`Error appending directory to archive: ${error}`);
     }
