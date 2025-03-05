@@ -52,20 +52,41 @@ export default function LoginForm() {
         event.preventDefault();
         setLoading(true);
 
-        const data = {username, password};
+        // const data = {username, password};
 
         // TODO: There is no validation yet, need to implement that
+        const sendAuthReq = async (username, password) => {
+            const resp = await fetch("http://localhost:5000/v1/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({username, password}),
+            });
+            if (!resp.ok) {
+                const data = await resp.json();
+                // TODO: Handle error here
+                console.error(data.message);
+            }
+            return await resp.json();
+        };
 
-        // Store data in session if the user does not want to be remembered
-        if (remember) {
-            const expires = new Date();
-            expires.setMonth(expires.getMonth() + 1);
-            localStorage.setItem(storage_id, JSON.stringify({...data, expires}));
-        } else {
-            sessionStorage.setItem(storage_id, JSON.stringify(data));
-        }
+        sendAuthReq(username, password).then((data) => {
+            const {code, token} = data;
 
-        navigate("/login");
+            // Should always be 200, but just make sure it is
+            if (code === 200) {
+                // Store JWT in session if the user does not want to be remembered
+                remember ? localStorage.setItem(storage_id, token) : sessionStorage.setItem(storage_id, token);
+                navigate("/login");
+            } else {
+                // TODO: Handle error here
+            }
+        }).catch((err) => {
+            // TODO: Handle error here
+            console.error(err);
+        });
+
 
         // Disable loading now, this might take time but right now its instant
         setLoading(false);

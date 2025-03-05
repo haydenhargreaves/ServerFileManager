@@ -29,7 +29,7 @@ export default function UserInput({onChange}) {
         type="text"
         name={id}
         value={email}
-        onChange={updateEmail}
+        onInput={updateEmail}
         placeholder="Username"
         required={true}
         className="border border-gray-300 rounded-sm py-2 px-4 placeholder:italic w-full my-2"

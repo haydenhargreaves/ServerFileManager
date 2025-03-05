@@ -35,7 +35,6 @@ export default function Directory({entry, showHidden, appendPath, toggleSelected
         if (entry.directory) {
             appendPath(entry.name);
         } else {
-            console.log(`OPENING FILE: ${entry.path}`)
             toggleEditing(entry.path);
         }
     };

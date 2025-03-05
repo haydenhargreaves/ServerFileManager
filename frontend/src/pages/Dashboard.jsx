@@ -6,33 +6,15 @@ import Navbar from "../components/Navbar.jsx";
 import Error from "../components/Error.jsx";
 import Editor from "../components/Editor.jsx";
 
-
 export default function Dashboard() {
-    const [username, setUsername] = useState("");
+    const [token, setToken] = useState(null);
     const [path, setPath] = useState(["home", "azpect"]);
     const [showHidden, setShowHidden] = useState(false);
     const [selected, setSelected] = useState([]);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
     const [editing, setEditing] = useState("");
-
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const getData = async () => {
-            const response = await fetch(`http://localhost:5000/v1/children?path=/${path.join("/")}`)
-            if (!response.ok) {
-                console.error("Something went wrong");
-            }
-            return await response.json();
-        }
-        getData().then((data) => {
-            setFiles(data);
-        });
-
-        setSelected([]);
-
-    }, [path]);
 
     /**
      * The name of the value stored in local storage.
@@ -40,16 +22,54 @@ export default function Dashboard() {
      */
     const storage_id = "gophernest_credentials";
 
+    /**
+     * Update the token from the local or session storage.
+     * This function assumes one of them exists.
+     * If it does not, the token will be null.
+     * This function will return the token as well, to allow for other usecases.
+     */
+    const updateToken = () => {
+        const t = localStorage.getItem(storage_id) ? localStorage.getItem(storage_id) : sessionStorage.getItem(storage_id);
+        setToken(t);
+        return t;
+    };
+
+    useEffect(() => {
+        const getData = async (token) => {
+            const response = await fetch(`http://localhost:5000/v1/children?path=/${path.join("/")}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "authorization": `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) {
+                console.error("Something went wrong");
+            }
+            return await response.json();
+        }
+
+        // If the token doesnt exit, udpate it and use the return value.
+        // This is a silly work around to prevent the first render from not working
+        // TODO: Fix this shit.
+        let tkn = token ? token : updateToken();
+
+        getData(tkn).then((data) => {
+            setFiles(data);
+        });
+
+        setSelected([]);
+
+    }, [path]);
+
+
     // Redirect if the user isn't logged in, otherwise update the state.
+    // Store the token in the storage, it should be attached to every request.
     useEffect(() => {
         if (localStorage.getItem(storage_id) == null && sessionStorage.getItem(storage_id) == null) {
             navigate("/login");
         } else {
-            if (localStorage.getItem(storage_id)) {
-                setUsername(JSON.parse(localStorage.getItem(storage_id))["username"]);
-            } else if (sessionStorage.getItem(storage_id)) {
-                setUsername(JSON.parse(sessionStorage.getItem(storage_id))["username"]);
-            }
+            updateToken();
         }
     }, [navigate]);
 
@@ -112,6 +132,7 @@ export default function Dashboard() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
                     },
                     body: JSON.stringify({filePaths: paths}),
                 });
@@ -119,6 +140,7 @@ export default function Dashboard() {
                     setError(`HTTP error! status: ${resp.status}`);
                 }
 
+                // TODO: Figure out how tf this works.
                 const blob = await resp.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -164,6 +186,7 @@ export default function Dashboard() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify({path, content}),
             })
@@ -188,7 +211,13 @@ export default function Dashboard() {
     const [editingFileContent, setEditingFileContent] = useState("");
     useEffect(() => {
         const fetchContent = async (path) => {
-            const resp = await fetch(`http://localhost:5000/v1/content?path=${path}`);
+            const resp = await fetch(`http://localhost:5000/v1/content?path=${path}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
             if (!resp.ok) {
                 // TODO: Add this back in, its broken right now.
                 setError("Something went wrong! Failed to get file content.")
@@ -196,16 +225,19 @@ export default function Dashboard() {
             return await resp.json();
         };
 
-        // Fetch the data and handle errors accordingly
-        fetchContent(editing).then((data) => {
-            if (data.code === 200) {
-                setEditingFileContent(data.content);
-            } else {
-                // An error occurred, do not open the editor
-                setEditing("");
-                setError(data.error);
-            }
-        });
+        // Prevent running when nothing is being edited. Also prevents a call on mount.
+        if (editing) {
+            // Fetch the data and handle errors accordingly
+            fetchContent(editing).then((data) => {
+                if (data.code === 200) {
+                    setEditingFileContent(data.content);
+                } else {
+                    // An error occurred, do not open the editor
+                    setEditing("");
+                    setError(data.error);
+                }
+            });
+        }
 
     }, [editing]);
 

@@ -27,8 +27,11 @@ export default function PasswordInput({onChange}) {
      * @param event {InputEvent}
      */
     const updatePassword = (event) => {
-        onChange(password);
-        setPassword(event.target.value);
+        const newPassword = event.target.value;
+        setPassword(newPassword);
+
+        // Do not rely on other state, otherwise we get one render behind
+        onChange(newPassword);
     }
 
     return <>
@@ -36,7 +39,7 @@ export default function PasswordInput({onChange}) {
             <input
                 type={hidden ? "password" : "text"}
                 value={password}
-                onChange={updatePassword}
+                onInput={updatePassword}
                 name={id}
                 required={true}
                 placeholder="Password"

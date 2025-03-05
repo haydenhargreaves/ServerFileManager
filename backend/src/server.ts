@@ -1,6 +1,6 @@
 import express, {Express, Request, Response, Router} from "express";
 import {Healthcheck} from "./healthcheck";
-import {printEndpoints} from "./utils";
+import {printEndpoints, validateHash} from "./utils";
 import {LogRequestMiddleware} from "./log";
 import * as fs from "node:fs";
 import {entry} from "./entry";
@@ -8,6 +8,8 @@ import cors from "cors";
 import archiver from "archiver";
 import {appendDirectoryToArchive, appendFileToArchive} from "./download";
 import path from "node:path";
+import jwt from "jsonwebtoken";
+import {verifyToken} from "./authenicate";
 
 /**
  * App details
@@ -34,6 +36,7 @@ APP.use(cors(corsOptions));
 /**
  * Apply middleware, this must be done before the routes are created.
  */
+APP.use(verifyToken);
 APP.use(LogRequestMiddleware);
 APP.use(express.json());
 
@@ -56,10 +59,28 @@ v1.get("/healthcheck", (req: Request, res: Response): void => {
 });
 
 /**
- * Index route
+ * Make a log in attempt.
  */
-v1.get("/", (req: Request, res: Response): void => {
-    res.send("Hello world!");
+v1.post("/login", (req: Request, res: Response): void => {
+    // Get info from body
+    const {username, password} = req.body;
+
+    // Get required info from the environment and validate
+    // TODO: Make sure the ENV is sourced through docker compose!
+    if (process.env["FILE_GOPHERNEST_USER"] === username && validateHash(password, process.env["FILE_GOPHERNEST_PASSWORD"] as string)) {
+        // Get the secret from the env
+        const jwt_secret: string | undefined = process.env["FILE_GOPHERNEST_JWT_SECRET"];
+        if (!jwt_secret) {
+            res.status(500).json({code: 500, message: "JSON web tokens are not configured."});
+            return;
+        }
+
+        // Create the token
+        const token: string = jwt.sign({username}, jwt_secret, {expiresIn: "30d"});
+        res.status(200).json({code: 200, token});
+    } else {
+        res.status(404).json({code: 404, message: "Invalid credentials. Please try again!"});
+    }
 });
 
 /**
@@ -179,7 +200,6 @@ v1.post("/update", (req: Request, res: Response): void => {
 
     try {
         fs.writeFileSync(path, content);
-        console.log(fs.readFileSync(path).toString());
         res.status(204);
     } catch (error) {
         res.status(500).json({code: 500, error})
