@@ -67,6 +67,7 @@ export default function LoginForm() {
                 const data = await resp.json();
                 // TODO: Handle error here
                 console.error(data.message);
+                return data;
             }
             return await resp.json();
         };

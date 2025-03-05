@@ -9,6 +9,7 @@ import archiver from "archiver";
 import {appendDirectoryToArchive, appendFileToArchive} from "./download";
 import path from "node:path";
 import jwt from "jsonwebtoken";
+import {config} from "dotenv";
 import {verifyToken} from "./authenicate";
 
 /**
@@ -17,6 +18,12 @@ import {verifyToken} from "./authenicate";
 const PORT = 5000;
 const APP: Express = express();
 const ROOT: string = "/home/azpect";
+
+/**
+ * Configure the .env file, this is for testing only
+ * TODO: Remove this
+ */
+config({path: ".env"});
 
 /**
  * Invalid file extentions for the file editor.
