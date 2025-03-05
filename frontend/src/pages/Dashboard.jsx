@@ -242,6 +242,10 @@ export default function Dashboard() {
 
     }, [editing]);
 
+    const toggleHidden = (e) => {
+        setShowHidden(e.target.checked);
+    };
+
     return (
         <div className="w-full min-h-screen h-screen pb-8">
             <Navbar downloadFiles={downloadFiles}/>
@@ -255,6 +259,15 @@ export default function Dashboard() {
                 <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
                     <DirectoryList dirs={files} showHidden={showHidden} appendPath={appendPath}
                                    toggleSelected={toggleSelected} toggleEditing={toggleEditing}/>
+                </div>
+                <div className="w-2/3 flex justify-end items-center">
+                    <label className="text-sm mx-2" htmlFor="showHiddenItems">Show Hidden Items</label>
+                    <input
+                        className="p-2"
+                        name="showHiddenItems"
+                        type="checkbox"
+                        checked={showHidden}
+                        onClick={toggleHidden}/>
                 </div>
             </div>
         </div>
