@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 import DirectoryList from "../components/DirectoryList.jsx";
 import PathDisplay from "../components/ PathDisplay.jsx";
 import Navbar from "../components/Navbar.jsx";
+import Error from "../components/Error.jsx";
 
 
 export default function Dashboard() {
@@ -11,6 +12,7 @@ export default function Dashboard() {
     const [showHidden, setShowHidden] = useState(false);
     const [selected, setSelected] = useState([]);
     const [files, setFiles] = useState([]);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -96,6 +98,11 @@ export default function Dashboard() {
      * Callback function for when the download button is clicked.
      */
     const downloadFiles = () => {
+        // Do not allow empty downloads
+        if (selected.length === 0) {
+            setError("Please select files/directories to download.");
+        }
+
         const download = async (paths) => {
             try {
                 const resp = await fetch("http://localhost:5000/v1/download", {
@@ -126,14 +133,26 @@ export default function Dashboard() {
         selected.forEach((file) => {
             targets.push(`/${path.join("/")}/${file}`);
         });
-        console.log(targets);
-        download(targets);
+
+        // TODO: Implement UI for errors
+        download(targets).catch((err) => {
+            setError(`Download error: ${err}.`)
+        });
     };
+
+    /**
+     * Clear the error in the error state.
+     */
+    const clearError = () => {
+        setError(null);
+    }
 
     return (
         <div className="w-full min-h-screen h-screen pb-8">
             <Navbar downloadFiles={downloadFiles}/>
             <div className="h-full w-full flex flex-col items-center justify-center pb-8">
+
+                {error && <Error error={error} clear={clearError}/>}
 
                 <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}/>
                 <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
