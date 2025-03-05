@@ -131,7 +131,7 @@ v1.post("/download", (req: Request, res: Response): void => {
 
     // Validate the path array
     if (!filePaths || !Array.isArray(filePaths) || filePaths.length === 0) {
-        res.status(400).send({error: 'Invalid file paths provided.'});
+        res.status(400).send({code: 400, error: 'Invalid file paths provided.'});
         return;
     }
 

@@ -137,19 +137,20 @@ export default function Dashboard() {
                     body: JSON.stringify({filePaths: paths}),
                 });
                 if (!resp.ok) {
-                    setError(`HTTP error! status: ${resp.status}`);
+                    const data = await resp.json();
+                    setError(`Error ${data.code}: ${data.error}`);
+                } else {
+                    // TODO: Figure out how tf this works.
+                    const blob = await resp.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "downloads.zip";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
                 }
-
-                // TODO: Figure out how tf this works.
-                const blob = await resp.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = "downloads.zip";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
             } catch (err) {
                 console.error(`Download error: ${err}`);
             }
