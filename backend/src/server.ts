@@ -5,6 +5,9 @@ import {LogRequestMiddleware} from "./log";
 import * as fs from "node:fs";
 import {entry} from "./entry";
 import cors from "cors";
+import archiver from "archiver";
+import {appendDirectoryToArchive, appendFileToArchive} from "./download";
+import path from "node:path";
 
 /**
  * App details
@@ -27,6 +30,7 @@ APP.use(cors(corsOptions));
  * Apply middleware, this must be done before the routes are created.
  */
 APP.use(LogRequestMiddleware);
+APP.use(express.json());
 
 /**
  * Create routes for modular routing
@@ -53,6 +57,9 @@ v1.get("/", (req: Request, res: Response): void => {
     res.send("Hello world!");
 });
 
+/**
+ * Get the children of a directory provided in the path query.
+ */
 v1.get("/children", (req: Request, res: Response): void => {
     // Get the path, if it was not provided, use the root
     const path: string = (req.query.path || ROOT) as string;
@@ -80,6 +87,54 @@ v1.get("/children", (req: Request, res: Response): void => {
         }
     }
     res.status(200).json(children);
+});
+
+/**
+ * Down a group of files provided in the body
+ */
+v1.post("/download", (req: Request, res: Response): void => {
+    // Get the files from the body
+    const {filePaths} = req.body;
+
+    // Validate the path array
+    if (!filePaths || !Array.isArray(filePaths) || filePaths.length === 0) {
+        res.status(400).send({error: 'Invalid file paths provided.'});
+        return;
+    }
+
+    const archive: archiver.Archiver = archiver('zip', {
+        zlib: {level: 9}, // Compression leve
+    });
+
+    // Set the file headers
+    res.setHeader('Content-Disposition', 'attachment; filename=donwloads.zip');
+    res.setHeader('Content-Type', 'application/zip');
+
+    archive.pipe(res);
+
+    // Add each file to the archive
+    filePaths.forEach((filePath): void => {
+        // This works for files, but for directories, we need to read the files
+
+        try {
+            const stats = fs.statSync(filePath);
+            if (!stats.isDirectory()) {
+                appendFileToArchive(filePath, archive);
+            } else {
+                // Call this with the name to include the name of the directory
+                appendDirectoryToArchive(filePath, path.basename(filePath), archive);
+            }
+        } catch (err) {
+            console.error(`Error adding file to zip: ${err}`);
+        }
+    });
+
+    // Return errors
+    archive.on('error', (err): void => {
+        res.status(500).send({error: err.message});
+    });
+
+    archive.finalize();
 });
 
 /**

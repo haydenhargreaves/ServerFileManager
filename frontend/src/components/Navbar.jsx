@@ -18,12 +18,13 @@ function MainIcon() {
 
 /**
  * Download button
+ * @param downloadFiles {function}
  * @returns {JSX.Element}
  * @constructor
  */
-function DownloadButton() {
+function DownloadButton({downloadFiles}) {
     return (
-        <button className="text-black" title="Download files">
+        <button className="text-black" title="Download files" onClick={downloadFiles}>
             <svg className="hover:bg-gray-300 mx-1 transition-colors duration-200 p-1.5 rounded-full h-8"
                  viewBox="0 0 24 24" fill="currentColor"
                  xmlns="http://www.w3.org/2000/svg">
@@ -139,7 +140,7 @@ function SearchBar() {
     )
 }
 
-export default function Navbar() {
+export default function Navbar({downloadFiles}) {
     return <nav className="absolute w-full p-2 flex items-center border-b-1 border-gray-400 bg-gray-100">
         <MainIcon/>
 
@@ -147,7 +148,7 @@ export default function Navbar() {
         <SearchBar/>
 
         <div className="min-h-fit ml-auto flex">
-            <DownloadButton/>
+            <DownloadButton downloadFiles={downloadFiles}/>
             <UploadButton/>
             <InfoButton/>
             <LogoutButton/>

@@ -26,6 +26,8 @@ export default function Dashboard() {
             setFiles(data);
         });
 
+        setSelected([]);
+
     }, [path]);
 
     /**
@@ -90,17 +92,47 @@ export default function Dashboard() {
         }
     };
 
-    // Example of getting absolute paths, for download
-    useEffect(() => {
-        console.log(selected);
+    /**
+     * Callback function for when the download button is clicked.
+     */
+    const downloadFiles = () => {
+        const download = async (paths) => {
+            try {
+                const resp = await fetch("http://localhost:5000/v1/download", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({filePaths: paths}),
+                });
+                if (!resp.ok) {
+                    throw new Error(`HTTP error! status: ${resp.status}`);
+                }
+
+                const blob = await resp.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "downloads.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error(`Download error: ${err}`);
+            }
+        };
+        const targets = [];
         selected.forEach((file) => {
-            console.log(`/${path.join("/")}/${file}`);
+            targets.push(`/${path.join("/")}/${file}`);
         });
-    }, [selected]);
+        console.log(targets);
+        download(targets);
+    };
 
     return (
         <div className="w-full min-h-screen h-screen pb-8">
-            <Navbar/>
+            <Navbar downloadFiles={downloadFiles}/>
             <div className="h-full w-full flex flex-col items-center justify-center pb-8">
 
                 <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}/>

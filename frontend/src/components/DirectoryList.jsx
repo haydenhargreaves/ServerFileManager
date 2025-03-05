@@ -11,8 +11,8 @@ import Directory from "./Directory.jsx";
 export default function DirectoryList({dirs, showHidden, appendPath, toggleSelected}) {
     return (
         <>
-            {dirs.map((dir, idx) => <Directory entry={dir} showHidden={showHidden} key={idx} appendPath={appendPath}
-                                               toggleSelected={toggleSelected}/>)}
+            {dirs.map((dir) => <Directory entry={dir} showHidden={showHidden} appendPath={appendPath}
+                                          toggleSelected={toggleSelected}/>)}
         </>
     )
 
