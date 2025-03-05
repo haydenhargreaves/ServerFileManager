@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import DirectoryList from "../components/DirectoryList.jsx";
-import PathDisplay from "../components/ PathDisplay.jsx";
+import PathDisplay from "../components/PathDisplay.jsx";
 import Navbar from "../components/Navbar.jsx";
 import Error from "../components/Error.jsx";
 
@@ -17,7 +17,6 @@ export default function Dashboard() {
 
     useEffect(() => {
         const getData = async () => {
-            console.log(`http://localhost:5000/v1/children?path=/${path.join("/")}`);
             const response = await fetch(`http://localhost:5000/v1/children?path=/${path.join("/")}`)
             if (!response.ok) {
                 console.error("Something went wrong");
@@ -60,15 +59,16 @@ export default function Dashboard() {
     };
 
     /**
-     * Set the path back to the default, home directory.
+     * Set the path back to the default.
      */
     const backHome = () => {
+        // TODO: Fix this in production
         setPath(["home", "azpect"]);
     };
 
     /**
      * Add name to the path.
-     * @param name Targe child
+     * @param name Target child
      */
     const appendPath = (name) => {
         setPath([...path, name])
@@ -113,7 +113,7 @@ export default function Dashboard() {
                     body: JSON.stringify({filePaths: paths}),
                 });
                 if (!resp.ok) {
-                    throw new Error(`HTTP error! status: ${resp.status}`);
+                    setError(`HTTP error! status: ${resp.status}`);
                 }
 
                 const blob = await resp.blob();
