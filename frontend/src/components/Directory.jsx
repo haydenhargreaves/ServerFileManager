@@ -58,7 +58,7 @@ export default function Directory({entry, showHidden, appendPath, toggleSelected
             <div className="w-full flex bg-gray-100 peer-checked:bg-blue-300 hover:bg-gray-300 peer-hover:bg-gray-300">
                 <button className="flex items-center" onClick={handleClick}>
                     {entry.directory ? <DirectoryIcon/> : <FileIcon/>}
-                    <p className="p-2 hover:underline hover:text-blue-400">{entry.name}</p>
+                    <p className="p-2 hover:underline hover:text-blue-400">{entry.name}{entry.directory ? "/" : ""}</p>
                 </button>
             </div>
 
