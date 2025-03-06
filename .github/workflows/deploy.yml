@@ -20,10 +20,22 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build and push Docker images
-        run: |
-          docker-compose build
-          docker-compose push
+
+      - name: Build and push Docker frontend image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./frontend
+          file: ./Dockerfile
+          push: true
+          tags: azpect3120/file.gophernest.frontend:latest
+
+      - name: Build and push Docker backend image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./backend
+          file: ./Dockerfile
+          push: true
+          tags: azpect3120/file.gophernest.backend:latest
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.2.1
@@ -32,9 +44,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            docker-compose -f /path/to/your/docker-compose.yml down
-            docker-compose -f /path/to/your/docker-compose.yml pull
-            docker-compose -f /path/to/your/docker-compose.yml up -d
+            docker-compose -f /home/azpect/Applications/file.gophernest/docker-compose.yml down
+            docker-compose -f /home/azpect/Applications/file.gophernest/docker-compose.yml pull
+            docker-compose -f /home/azpect/Applications/file.gophernest/docker-compose.yml up -d
         env:
           FILE_GOPHERNEST_USER: ${{ secrets.FILE_GOPHERNEST_USER }}
           FILE_GOPHERNEST_PASSWORD: ${{ secrets.FILE_GOPHERNEST_PASSWORD }}
