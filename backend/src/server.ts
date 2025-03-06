@@ -35,7 +35,7 @@ const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf",
  * TODO: Update hosts for production
  */
 const corsOptions: cors.CorsOptions = {
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:3100"],
     methods: ["GET"]
 };
 APP.use(cors(corsOptions));
