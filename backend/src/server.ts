@@ -10,7 +10,6 @@ import {appendDirectoryToArchive, appendFileToArchive} from "./download";
 import path from "node:path";
 import {verifyToken} from "./authenicate";
 import jwt from "jsonwebtoken";
-import {config} from "dotenv";
 
 /**
  * App details
@@ -23,7 +22,7 @@ const ROOT: string = "/home/azpect";
  * Configure the .env file, this is for testing only
  * TODO: Remove this
  */
-config({path: ".env"});
+// config({path: ".env"});
 
 /**
  * Invalid file extensions for the file editor.
@@ -35,7 +34,7 @@ const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf",
  * TODO: Update hosts for production
  */
 const corsOptions: cors.CorsOptions = {
-    origin: ["http://localhost:3100"],
+    origin: ["http://localhost:3100", "https://192.168.1.211:3100"],
     methods: ["GET", "POST"]
 };
 APP.use(cors(corsOptions));

@@ -4,6 +4,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+
     ports:
       - "3100:3100"
     depends_on:
