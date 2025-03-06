@@ -10,6 +10,7 @@ import {appendDirectoryToArchive, appendFileToArchive} from "./download";
 import path from "node:path";
 import {verifyToken} from "./authenicate";
 import jwt from "jsonwebtoken";
+import {config} from "dotenv";
 
 /**
  * App details
@@ -22,7 +23,7 @@ const ROOT: string = "/home/azpect";
  * Configure the .env file, this is for testing only
  * TODO: Remove this
  */
-// config({path: ".env"});
+config({path: ".env"});
 
 /**
  * Invalid file extensions for the file editor.

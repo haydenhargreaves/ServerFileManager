@@ -7,14 +7,18 @@ import Error from "../components/Error.jsx";
 import Editor from "../components/Editor.jsx";
 
 export default function Dashboard() {
+    // Store the default path
+    const defaultPath = ["home", "azpect", "Documents"];
+
     const [token, setToken] = useState(null);
-    const [path, setPath] = useState(["home", "azpect"]);
+    const [path, setPath] = useState([...defaultPath]);
     const [showHidden, setShowHidden] = useState(false);
     const [selected, setSelected] = useState([]);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
     const [editing, setEditing] = useState("");
     const navigate = useNavigate();
+
 
     /**
      * The name of the value stored in local storage.
@@ -78,7 +82,11 @@ export default function Dashboard() {
      * @param index {number} Index to slice to.
      */
     const updatePath = (index) => {
-        setPath(path.slice(0, index + 1));
+        let newPath = path.slice(0, index + 1);
+        if (newPath.length < defaultPath.length) {
+            newPath = [...defaultPath];
+        }
+        setPath(newPath);
     };
 
     /**
@@ -86,7 +94,7 @@ export default function Dashboard() {
      */
     const backHome = () => {
         // TODO: Fix this in production
-        setPath(["home", "azpect"]);
+        setPath([...defaultPath]);
     };
 
     /**
@@ -101,7 +109,9 @@ export default function Dashboard() {
      * Back arrow, goes back one directory (cd ..)
      */
     const backArrow = () => {
-        setPath(path.slice(0, path.length - 1));
+        if (path.length > defaultPath.length) {
+            setPath(path.slice(0, path.length - 1));
+        }
     }
 
     /**
@@ -255,7 +265,8 @@ export default function Dashboard() {
                 {(editing !== "" && !error) &&
                     <Editor content={editingFileContent} path={editing} exit={exitFile} saveExit={exitAndSaveFile}/>}
 
-                <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}/>
+                <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}
+                             enabled={path.length > defaultPath.length}/>
                 <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
                     <DirectoryList dirs={files} showHidden={showHidden} appendPath={appendPath}
                                    toggleSelected={toggleSelected} toggleEditing={toggleEditing}/>

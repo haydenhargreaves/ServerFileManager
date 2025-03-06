@@ -16,7 +16,10 @@ services:
       - "5000:5000"
     volumes:
       # TODO: This will need to be configured, need to rebuild part of the program for that though
-      - /home/azpect:/media/vault
-    env_file:
-      # TODO: This will need to be configured to use GH secrets, ez though
-      - ./backend/.env
+      - /home/azpect/Documents:/home/azpect/Documents
+    environment:
+      FILE_GOPHERNEST_USER: ${FILE_GOPHERNEST_USER}
+      FILE_GOPHERNEST_PASSWORD: ${FILE_GOPHERNEST_PASSWORD}
+      FILE_GOPHERNEST_JWT_SECRET: ${FILE_GOPHERNEST_JWT_SECRET}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}

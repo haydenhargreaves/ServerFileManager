@@ -5,12 +5,13 @@
  * @returns {JSX.Element}
  * @constructor
  */
-function HomeButton({onClick}) {
+function HomeButton({onClick, enabled}) {
     return (
         <button
             onClick={onClick}
-            className="hover:bg-gray-200 p-1.5 rounded-full transition-colors duration-150">
-            <svg className="text-black h-4"
+            disabled={!enabled}
+            className="hover:bg-gray-200 p-1.5 rounded-full transition-colors duration-150 disabled:text-gray-500 disabled:hover:bg-red-300 disabled:cursor-not-allowed text-black">
+            <svg className="h-4"
                  viewBox="0 0 16 16"
                  xmlns="http://www.w3.org/2000/svg"
                  fill="currentColor">
@@ -20,11 +21,12 @@ function HomeButton({onClick}) {
     )
 }
 
-function BackButton({onClick}) {
+function BackButton({onClick, enabled}) {
     return (
         <button onClick={onClick}
-                className="hover:bg-gray-200 p-1.5 mr-1 rounded-full transition-colors duration-150">
-            <svg className="h-5 text-black" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                disabled={!enabled}
+                className="hover:bg-gray-200 p-1.5 mr-1 rounded-full transition-colors duration-150 disabled:text-gray-500 disabled:hover:bg-red-300 disabled:cursor-not-allowed text-black">
+            <svg className="h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z"/>
             </svg>
@@ -53,15 +55,16 @@ function PathElement({name, index, onClick}) {
  * @param updatePath {function(number)}
  * @param backHome {function}
  * @param backArrow {function}
+ * @param enabled {boolean}
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PathDisplay({path, updatePath, backHome, backArrow}) {
+export default function PathDisplay({path, updatePath, backHome, backArrow, enabled}) {
     return (
         <div
             className="w-2/3 mt-8 border-b-1 border-gray-400 bg-white flex items-center truncate">
-            <HomeButton onClick={backHome}/>
-            <BackButton onClick={backArrow}/>
+            <HomeButton onClick={backHome} enabled={enabled}/>
+            <BackButton onClick={backArrow} enabled={enabled}/>
             {path.map((seg, idx) => <PathElement name={seg} key={idx} index={idx} onClick={updatePath}/>)}
         </div>
     )
