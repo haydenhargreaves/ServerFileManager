@@ -8,9 +8,8 @@ import cors from "cors";
 import archiver from "archiver";
 import {appendDirectoryToArchive, appendFileToArchive} from "./download";
 import path from "node:path";
-import jwt from "jsonwebtoken";
-import {config} from "dotenv";
 import {verifyToken} from "./authenicate";
+import jwt from "jsonwebtoken";
 
 /**
  * App details
@@ -23,10 +22,10 @@ const ROOT: string = "/home/azpect";
  * Configure the .env file, this is for testing only
  * TODO: Remove this
  */
-config({path: ".env"});
+// config({path: ".env"});
 
 /**
- * Invalid file extentions for the file editor.
+ * Invalid file extensions for the file editor.
  */
 const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf", "jpg", "jpeg", "png", "gif", "webm", "webp", "bmp", "mp3", "wav", "mp4", "avi", "zip", "rar", "7z", "iso", "dmg", "class", "pyc", "o", "a", "woff", "woff2", "ttf", "otf", "db", "sqlite", "mdb", "accdb", "psd", "ai", "indd", "blend", "fbx", "unitypackage", "pak", "sav", "msi", ".doc", ".docx", ".dot", ".dotx", ".docm", ".dotm", ".rtf", ".txt", ".xls", ".xlsx", ".xlsm", ".xltx", ".xltm", ".csv", ".ppt", ".pptx", ".pptm", ".potx", ".potm", ".ppsx", ".ppsm", ".mdb", ".accdb", ".accde", ".accdt", ".pst", ".ost", ".msg", ".one", ".onetoc2", ".pub", ".vsd", ".vsdx", ".vssx", ".vstx", ".odc", ".oft", ".pki"];
 
@@ -36,7 +35,7 @@ const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf",
  */
 const corsOptions: cors.CorsOptions = {
     origin: ["http://localhost:3100"],
-    methods: ["GET"]
+    methods: ["GET", "POST"]
 };
 APP.use(cors(corsOptions));
 
