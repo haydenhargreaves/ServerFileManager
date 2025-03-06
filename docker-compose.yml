@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3100:3100"
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      # TODO: This will need to be configured, need to rebuild part of the program for that though
+      - /home/azpect:/media/vault
+    env_file:
+      # TODO: This will need to be configured to use GH secrets, ez though
+      - ./backend/.env

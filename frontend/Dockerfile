@@ -11,7 +11,7 @@ COPY /package*.json ./
 RUN npm install
 
 # Copy the rest of the frontend code
-COPY / .
+COPY . .
 
 # Build the React app using Vite
 RUN npm run build
