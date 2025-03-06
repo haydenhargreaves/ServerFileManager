@@ -4,12 +4,16 @@ import PasswordInput from "./PasswordInput.jsx";
 import RememberMe from "./RememberMe.jsx";
 import {useNavigate} from "react-router-dom";
 
+
 export default function LoginForm() {
     /**
-     * URL To the backend web server
+     * URL To the backend web server.
+     * Uses the .env var in local development, but when
+     * pushed to dockerhub, the .env is ignored and the real
+     * backend URL is used.
      * @type {string}
      */
-    const backendUrl = "https://backend.gophernest.net";
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://backend.gophernest.net";
 
     const [username, setUsername] = useState("");
     const [remember, setRemember] = useState(false);

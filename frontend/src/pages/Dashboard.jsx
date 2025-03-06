@@ -11,10 +11,13 @@ export default function Dashboard() {
     const defaultPath = ["media", "vault"];
 
     /**
-     * URL To the backend web server
+     * URL To the backend web server.
+     * Uses the .env var in local development, but when
+     * pushed to dockerhub, the .env is ignored and the real
+     * backend URL is used.
      * @type {string}
      */
-    const backendUrl = "https://backend.gophernest.net";
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://backend.gophernest.net";
 
     const [token, setToken] = useState(null);
     const [path, setPath] = useState([...defaultPath]);
