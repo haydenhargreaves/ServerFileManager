@@ -37,7 +37,7 @@ const corsOptions: cors.CorsOptions = {
     origin: ["http://localhost:3100", "https://192.168.1.211:3100"],
     methods: ["GET", "POST"]
 };
-APP.use(cors(corsOptions));
+APP.use(cors());
 
 /**
  * Apply middleware, this must be done before the routes are created.
