@@ -14,7 +14,7 @@ export default function Dashboard() {
      * URL To the backend web server
      * @type {string}
      */
-    const backendUrl = "http://backend:5000";
+    const backendUrl = "http://172.19.0.2:5000";
 
     const [token, setToken] = useState(null);
     const [path, setPath] = useState([...defaultPath]);
