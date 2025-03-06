@@ -5,6 +5,12 @@ import RememberMe from "./RememberMe.jsx";
 import {useNavigate} from "react-router-dom";
 
 export default function LoginForm() {
+    /**
+     * URL To the backend web server
+     * @type {string}
+     */
+    const backendUrl = "http://backend:5000";
+
     const [username, setUsername] = useState("");
     const [remember, setRemember] = useState(false);
     const [password, setPassword] = useState("");
@@ -56,7 +62,7 @@ export default function LoginForm() {
 
         // TODO: There is no validation yet, need to implement that
         const sendAuthReq = async (username, password) => {
-            const resp = await fetch("http://localhost:5000/v1/login", {
+            const resp = await fetch(`${backendUrl}/v1/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

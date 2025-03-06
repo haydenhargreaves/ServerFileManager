@@ -10,6 +10,12 @@ export default function Dashboard() {
     // Store the default path
     const defaultPath = ["home", "azpect", "Documents"];
 
+    /**
+     * URL To the backend web server
+     * @type {string}
+     */
+    const backendUrl = "http://backend:5000";
+
     const [token, setToken] = useState(null);
     const [path, setPath] = useState([...defaultPath]);
     const [showHidden, setShowHidden] = useState(false);
@@ -40,7 +46,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         const getData = async (token) => {
-            const response = await fetch(`http://localhost:5000/v1/children?path=/${path.join("/")}`, {
+            const response = await fetch(`${backendUrl}/v1/children?path=/${path.join("/")}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -138,7 +144,7 @@ export default function Dashboard() {
 
         const download = async (paths) => {
             try {
-                const resp = await fetch("http://localhost:5000/v1/download", {
+                const resp = await fetch(`${backendUrl}/v1/download`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -193,7 +199,7 @@ export default function Dashboard() {
 
     const exitAndSaveFile = (newContent) => {
         const updateContent = async (path, content) => {
-            const resp = await fetch("http://localhost:5000/v1/update", {
+            const resp = await fetch(`${backendUrl}/v1/update`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -222,7 +228,7 @@ export default function Dashboard() {
     const [editingFileContent, setEditingFileContent] = useState("");
     useEffect(() => {
         const fetchContent = async (path) => {
-            const resp = await fetch(`http://localhost:5000/v1/content?path=${path}`, {
+            const resp = await fetch(`${backendUrl}/v1/content?path=${path}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

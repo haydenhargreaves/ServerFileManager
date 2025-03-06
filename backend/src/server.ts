@@ -34,7 +34,7 @@ const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf",
  * TODO: Update hosts for production
  */
 const corsOptions: cors.CorsOptions = {
-    origin: ["http://localhost:3100", "https://192.168.1.211:3100"],
+    origin: ["http://localhost:3100", "http://192.168.1.211:3100"],
     methods: ["GET", "POST"]
 };
 APP.use(cors());
@@ -70,6 +70,8 @@ v1.get("/healthcheck", (req: Request, res: Response): void => {
 v1.post("/login", (req: Request, res: Response): void => {
     // Get info from body
     const {username, password} = req.body;
+
+    console.log("I GOT HIT BABY!!!");
 
     // Get required info from the environment and validate
     // TODO: Make sure the ENV is sourced through docker compose!
