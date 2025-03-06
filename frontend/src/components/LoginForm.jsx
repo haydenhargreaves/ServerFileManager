@@ -9,7 +9,7 @@ export default function LoginForm() {
      * URL To the backend web server
      * @type {string}
      */
-    const backendUrl = "http://172.19.0.2:5000";
+    const backendUrl = "https://backend.gophernest.net";
 
     const [username, setUsername] = useState("");
     const [remember, setRemember] = useState(false);

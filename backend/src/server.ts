@@ -71,8 +71,6 @@ v1.post("/login", (req: Request, res: Response): void => {
     // Get info from body
     const {username, password} = req.body;
 
-    console.log("I GOT HIT BABY!!!");
-
     // Get required info from the environment and validate
     // TODO: Make sure the ENV is sourced through docker compose!
     if (process.env["FILE_GOPHERNEST_USER"] === username && validateHash(password, process.env["FILE_GOPHERNEST_PASSWORD"] as string)) {

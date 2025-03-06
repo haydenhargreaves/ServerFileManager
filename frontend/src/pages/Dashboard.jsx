@@ -8,13 +8,13 @@ import Editor from "../components/Editor.jsx";
 
 export default function Dashboard() {
     // Store the default path
-    const defaultPath = ["home", "azpect", "Documents"];
+    const defaultPath = ["media", "vault"];
 
     /**
      * URL To the backend web server
      * @type {string}
      */
-    const backendUrl = "http://172.19.0.2:5000";
+    const backendUrl = "https://backend.gophernest.net";
 
     const [token, setToken] = useState(null);
     const [path, setPath] = useState([...defaultPath]);
