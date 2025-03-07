@@ -39,12 +39,13 @@ function DownloadButton({downloadFiles}) {
 
 /**
  * Upload button
+ * @param uploadFiles {function}
  * @returns {JSX.Element}
  * @constructor
  */
-function UploadButton() {
+function UploadButton({uploadFiles}) {
     return (
-        <button className="text-black" title="Upload files">
+        <button className="text-black" title="Upload files" onClick={uploadFiles}>
             <svg className="hover:bg-gray-300 mx-1 transition-colors duration-200 p-1.5 rounded-full font-semibold h-8"
                  viewBox="0 0 24 24" fill="currentColor"
                  xmlns="http://www.w3.org/2000/svg">
@@ -140,7 +141,7 @@ function SearchBar() {
     )
 }
 
-export default function Navbar({downloadFiles}) {
+export default function Navbar({downloadFiles, uploadFiles}) {
     return <nav className="absolute w-full p-2 flex items-center border-b-1 border-gray-400 bg-gray-100">
         <MainIcon/>
 
@@ -149,7 +150,7 @@ export default function Navbar({downloadFiles}) {
 
         <div className="min-h-fit ml-auto flex">
             <DownloadButton downloadFiles={downloadFiles}/>
-            <UploadButton/>
+            <UploadButton uploadFiles={uploadFiles}/>
             <InfoButton/>
             <LogoutButton/>
         </div>

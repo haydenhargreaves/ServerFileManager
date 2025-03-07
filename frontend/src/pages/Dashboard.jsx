@@ -7,6 +7,7 @@ import Error from "../components/Error.jsx";
 import Editor from "../components/Editor.jsx";
 import ChildrenLoading from "../components/ChildrenLoading.jsx";
 import DownloadLoading from "../components/DownloadLoading.jsx";
+import Uploader from "../components/Uploader.jsx";
 
 export default function Dashboard() {
     // Store the default path
@@ -28,6 +29,7 @@ export default function Dashboard() {
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
     const [editing, setEditing] = useState("");
+    const [uploading, setUploading] = useState(false);
     const [childrenLoading, setChildrenLoading] = useState(false);
     const [downloadLoading, setDownloadLoading] = useState(false);
     const [contentLoading, setContentLoading] = useState(false);
@@ -207,6 +209,10 @@ export default function Dashboard() {
         setError(null);
     }
 
+    /**
+     * Toggle editing of a file.
+     * @param path {string}
+     */
     const toggleEditing = (path) => {
         setEditing(path);
     };
@@ -237,7 +243,6 @@ export default function Dashboard() {
             setEditing("");
         });
     };
-
 
     /**
      * Handle the state for the content being modified in the text editor.
@@ -282,11 +287,29 @@ export default function Dashboard() {
         setShowHidden(e.target.checked);
     };
 
+    /**
+     * Toggle the upload modal.
+     * This can be used in the navbar and the close button!
+     */
+    const toggleUploading = () => {
+        setUploading(!uploading);
+    };
+
+    /**
+     * This will be where the magic happens, where the files are upload
+     * @param files {object[]}
+     * TODO: Actually do something here...
+     */
+    const upload = (files) => {
+        console.log(files);
+    };
+
     return (
         <div className="w-full min-h-screen h-screen pb-8">
-            <Navbar downloadFiles={downloadFiles}/>
+            <Navbar downloadFiles={downloadFiles} uploadFiles={toggleUploading}/>
             <div className="h-full w-full flex flex-col items-center justify-center pb-8">
                 {downloadLoading && <DownloadLoading/>}
+                {uploading && <Uploader close={toggleUploading} upload={upload}/>}
 
                 {error && <Error error={error} clear={clearError}/>}
                 {(editing !== "" && !error) &&
