@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar.jsx";
 import Error from "../components/Error.jsx";
 import Editor from "../components/Editor.jsx";
 import ChildrenLoading from "../components/ChildrenLoading.jsx";
+import DownloadLoading from "../components/DownloadLoading.jsx";
 
 export default function Dashboard() {
     // Store the default path
@@ -28,6 +29,7 @@ export default function Dashboard() {
     const [error, setError] = useState(null);
     const [editing, setEditing] = useState("");
     const [childrenLoading, setChildrenLoading] = useState(false);
+    const [downloadLoading, setDownloadLoading] = useState(false);
     const navigate = useNavigate();
 
 
@@ -149,6 +151,7 @@ export default function Dashboard() {
         // Do not allow empty downloads
         if (selected.length === 0) {
             setError("Please select files/directories to download.");
+            return
         }
 
         const download = async (paths) => {
@@ -180,6 +183,9 @@ export default function Dashboard() {
                 console.error(`Download error: ${err}`);
             }
         };
+
+        setDownloadLoading(true);
+
         const targets = [];
         selected.forEach((file) => {
             targets.push(`/${path.join("/")}/${file}`);
@@ -188,6 +194,8 @@ export default function Dashboard() {
         // TODO: Implement UI for errors
         download(targets).catch((err) => {
             setError(`Download error: ${err}.`)
+        }).finally(() => {
+            setDownloadLoading(false)
         });
     };
 
@@ -275,6 +283,7 @@ export default function Dashboard() {
         <div className="w-full min-h-screen h-screen pb-8">
             <Navbar downloadFiles={downloadFiles}/>
             <div className="h-full w-full flex flex-col items-center justify-center pb-8">
+                {downloadLoading && <DownloadLoading/>}
 
                 {error && <Error error={error} clear={clearError}/>}
                 {(editing !== "" && !error) &&
