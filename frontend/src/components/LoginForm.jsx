@@ -62,9 +62,6 @@ export default function LoginForm() {
         event.preventDefault();
         setLoading(true);
 
-        // const data = {username, password};
-
-        // TODO: There is no validation yet, need to implement that
         const sendAuthReq = async (username, password) => {
             const resp = await fetch(`${backendUrl}/v1/login`, {
                 method: "POST",
@@ -75,8 +72,8 @@ export default function LoginForm() {
             });
             if (!resp.ok) {
                 const data = await resp.json();
-                // TODO: Handle error here
                 console.error(data.message);
+                setError(data.message);
                 return data;
             }
             return await resp.json();
@@ -91,16 +88,16 @@ export default function LoginForm() {
                 remember ? localStorage.setItem(storage_id, token) : sessionStorage.setItem(storage_id, token);
                 navigate("/login");
             } else {
-                // TODO: Handle error here
+                console.error(data);
+                setError(data.message);
             }
         }).catch((err) => {
-            // TODO: Handle error here
             console.error(err);
+            setError(err.toString());
+        }).finally(() => {
+            // Disable loading bar
+            setLoading(false);
         });
-
-
-        // Disable loading now, this might take time but right now its instant
-        setLoading(false);
     };
 
     // Redirect if the user is logged in
@@ -109,6 +106,10 @@ export default function LoginForm() {
             navigate("/dashboard");
         }
     });
+
+    useEffect(() => {
+        console.log(`loading: ${loading}`);
+    }, [loading]);
 
 
     return <form onSubmit={handleSubmit} className="w-full flex flex-col items-center justify-center">
