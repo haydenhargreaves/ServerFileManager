@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from "react";
+import ContentLoading from "./ContentLoading.jsx";
 
-export default function Editor({content, path, exit, saveExit}) {
+export default function Editor({content, path, exit, saveExit, loading}) {
     const [text, setText] = useState("");
     /**
      * Store a reference to the text area object
@@ -54,14 +55,17 @@ export default function Editor({content, path, exit, saveExit}) {
             <div className="relative z-10 bg-white p-8 rounded-lg shadow-lg w-3/4 h-5/6 border-1 border-gray-400">
                 <h2 className="text-lg font-semibold mb-4 text-blue-400">Editing File: <span
                     className="font-mono text-black bg-gray-300 p-1 rounded-md">{path}</span></h2>
-                <textarea
-                    onKeyDown={handleKeyPress}
-                    tabIndex={-1}
-                    ref={textareaRef}
-                    onInput={updateText}
-                    value={text}
-                    className="border-1 border-gray-300 rounded-md w-full h-9/10 p-1 resize-none text-sm font-mono">
+                {loading && <ContentLoading/>}
+                {loading ||
+                    <textarea
+                        onKeyDown={handleKeyPress}
+                        tabIndex={-1}
+                        ref={textareaRef}
+                        onInput={updateText}
+                        value={text}
+                        className="border-1 border-gray-300 rounded-md w-full h-9/10 p-1 resize-none text-sm font-mono">
                 </textarea>
+                }
                 <div className="flex justify-end">
                     <button
                         title="Exit without saving"

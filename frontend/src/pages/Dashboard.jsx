@@ -30,6 +30,7 @@ export default function Dashboard() {
     const [editing, setEditing] = useState("");
     const [childrenLoading, setChildrenLoading] = useState(false);
     const [downloadLoading, setDownloadLoading] = useState(false);
+    const [contentLoading, setContentLoading] = useState(false);
     const navigate = useNavigate();
 
 
@@ -232,10 +233,9 @@ export default function Dashboard() {
 
         // Send request to server to update the file. This will return nothing
         // so no need for any promise handling.
-        updateContent(editing, newContent);
-
-        // Set editing back to nothing to hide the modal
-        setEditing("");
+        updateContent(editing, newContent).finally(() => {
+            setEditing("");
+        });
     };
 
 
@@ -259,6 +259,7 @@ export default function Dashboard() {
             return await resp.json();
         };
 
+        setContentLoading(true);
         // Prevent running when nothing is being edited. Also prevents a call on mount.
         if (editing) {
             // Fetch the data and handle errors accordingly
@@ -270,6 +271,8 @@ export default function Dashboard() {
                     setEditing("");
                     setError(data.error);
                 }
+            }).finally(() => {
+                setContentLoading(false)
             });
         }
 
@@ -287,7 +290,8 @@ export default function Dashboard() {
 
                 {error && <Error error={error} clear={clearError}/>}
                 {(editing !== "" && !error) &&
-                    <Editor content={editingFileContent} path={editing} exit={exitFile} saveExit={exitAndSaveFile}/>}
+                    <Editor content={editingFileContent} path={editing} exit={exitFile} saveExit={exitAndSaveFile}
+                            loading={contentLoading}/>}
 
                 <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}
                              enabled={path.length > defaultPath.length}/>
