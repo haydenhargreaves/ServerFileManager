@@ -5,6 +5,7 @@ import PathDisplay from "../components/PathDisplay.jsx";
 import Navbar from "../components/Navbar.jsx";
 import Error from "../components/Error.jsx";
 import Editor from "../components/Editor.jsx";
+import ChildrenLoading from "../components/ChildrenLoading.jsx";
 
 export default function Dashboard() {
     // Store the default path
@@ -26,6 +27,7 @@ export default function Dashboard() {
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
     const [editing, setEditing] = useState("");
+    const [childrenLoading, setChildrenLoading] = useState(false);
     const navigate = useNavigate();
 
 
@@ -62,13 +64,17 @@ export default function Dashboard() {
             return await response.json();
         }
 
-        // If the token doesnt exit, udpate it and use the return value.
+        setChildrenLoading(true);
+
+        // If the token doesnt exit, update it and use the return value.
         // This is a silly work around to prevent the first render from not working
         // TODO: Fix this shit.
         let tkn = token ? token : updateToken();
 
         getData(tkn).then((data) => {
             setFiles(data);
+        }).finally(() => {
+            setChildrenLoading(false);
         });
 
         setSelected([]);
@@ -277,6 +283,7 @@ export default function Dashboard() {
                 <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}
                              enabled={path.length > defaultPath.length}/>
                 <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
+                    {childrenLoading && <ChildrenLoading/>}
                     <DirectoryList dirs={files} showHidden={showHidden} appendPath={appendPath}
                                    toggleSelected={toggleSelected} toggleEditing={toggleEditing}/>
                 </div>

@@ -97,10 +97,6 @@ v1.post("/login", (req: Request, res: Response): void => {
 v1.get("/children", (req: Request, res: Response): void => {
     // Get the path, if it was not provided, use the root
     const path: string = (req.query.path || ROOT) as string;
-    // if (!path) {
-    //     res.status(400).json({error: "Please provide a path. E.g. /v1/children?path=/path/to/target", code: 400});
-    //     return;
-    // }
 
     // An array of names which are the children
     const children_paths: string[] = fs.readdirSync(path);
