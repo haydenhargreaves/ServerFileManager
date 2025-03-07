@@ -10,6 +10,7 @@ import {appendDirectoryToArchive, appendFileToArchive} from "./download";
 import path from "node:path";
 import {verifyToken} from "./authenicate";
 import jwt from "jsonwebtoken";
+import {config} from "dotenv";
 
 /**
  * App details
@@ -19,10 +20,13 @@ const APP: Express = express();
 const ROOT: string = "/home/azpect";
 
 /**
- * Configure the .env file, this is for testing only
- * TODO: Remove this
+ * Configure the .env file, this is for testing only, should be ignored in production.
  */
-// config({path: ".env"});
+try {
+    config({path: ".env"});
+} catch (error) {
+    console.error(`Could not load the .env file. If this is a production environment, this is normal!`);
+}
 
 /**
  * Invalid file extensions for the file editor.
@@ -30,14 +34,13 @@ const ROOT: string = "/home/azpect";
 const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf", "jpg", "jpeg", "png", "gif", "webm", "webp", "bmp", "mp3", "wav", "mp4", "avi", "zip", "rar", "7z", "iso", "dmg", "class", "pyc", "o", "a", "woff", "woff2", "ttf", "otf", "db", "sqlite", "mdb", "accdb", "psd", "ai", "indd", "blend", "fbx", "unitypackage", "pak", "sav", "msi", ".doc", ".docx", ".dot", ".dotx", ".docm", ".dotm", ".rtf", ".txt", ".xls", ".xlsx", ".xlsm", ".xltx", ".xltm", ".csv", ".ppt", ".pptx", ".pptm", ".potx", ".potm", ".ppsx", ".ppsm", ".mdb", ".accdb", ".accde", ".accdt", ".pst", ".ost", ".msg", ".one", ".onetoc2", ".pub", ".vsd", ".vsdx", ".vssx", ".vstx", ".odc", ".oft", ".pki"];
 
 /**
- * Configure cors
- * TODO: Update hosts for production
+ * Configure cors, this should work for both production and development.
  */
 const corsOptions: cors.CorsOptions = {
-    origin: ["http://localhost:3100", "http://192.168.1.211:3100"],
+    origin: ["http://localhost:3100", "https://file.gophernest.net"],
     methods: ["GET", "POST"]
 };
-APP.use(cors());
+APP.use(cors(corsOptions));
 
 /**
  * Apply middleware, this must be done before the routes are created.
@@ -72,7 +75,6 @@ v1.post("/login", (req: Request, res: Response): void => {
     const {username, password} = req.body;
 
     // Get required info from the environment and validate
-    // TODO: Make sure the ENV is sourced through docker compose!
     if (process.env["FILE_GOPHERNEST_USER"] === username && validateHash(password, process.env["FILE_GOPHERNEST_PASSWORD"] as string)) {
         // Get the secret from the env
         const jwt_secret: string | undefined = process.env["FILE_GOPHERNEST_JWT_SECRET"];
