@@ -301,7 +301,30 @@ export default function Dashboard() {
      * TODO: Actually do something here...
      */
     const upload = (files) => {
+        const uploadFiles = async (_files) => {
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', _files[i]); // 'files' is the field name
+            }
+
+            const resp = await fetch(`${backendUrl}/v1/upload`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: formData,
+            })
+            
+            if (!resp.ok) {
+                console.error("SHIT WE WRONG POOKIE");
+            }
+            
+            return await resp.json();
+        };
+        
         console.log(files);
+        uploadFiles(files).then((data) => {console.log(data)});
     };
 
     return (

@@ -11,6 +11,7 @@ import path from "node:path";
 import {verifyToken} from "./authenicate";
 import jwt from "jsonwebtoken";
 import {config} from "dotenv";
+import Multer from "multer";
 
 /**
  * App details
@@ -208,6 +209,23 @@ v1.post("/update", (req: Request, res: Response): void => {
     } catch (error) {
         res.status(500).json({code: 500, error})
     }
+});
+
+const upload = Multer({dest: "tmp/"});
+
+v1.post("/upload", upload.array("files"), (req: Request, res: Response) => {
+    if (!req.files) {
+        res.status(400);
+    }
+    
+    const files = req.files || [];
+    console.log(files);
+    
+    // for (const file of files) {
+    //     console.log(file);
+    // }
+    
+    res.status(204);
 });
 /**
  * Apply the routes to the server
