@@ -12,6 +12,7 @@ import {verifyToken} from "./authenicate";
 import jwt from "jsonwebtoken";
 import {config} from "dotenv";
 import Multer from "multer";
+import {readFileSync, rmSync, writeFileSync} from "fs";
 
 /**
  * App details
@@ -49,6 +50,7 @@ APP.use(cors(corsOptions));
 APP.use(verifyToken);
 APP.use(LogRequestMiddleware);
 APP.use(express.json());
+APP.use(express.urlencoded({extended: true}));
 
 /**
  * Create routes for modular routing
@@ -211,21 +213,64 @@ v1.post("/update", (req: Request, res: Response): void => {
     }
 });
 
-const upload = Multer({dest: "tmp/"});
+const upload = Multer({
+    dest: "tmp/",
+    limits: {
+        fileSize: 1024 * 1024 * 100
+    },
+});
 
+/**
+ * Custom type for the multer uploads.
+ */
+interface UploadedFile {
+    fieldname: string;
+    originalname: string;
+    encoding: string;
+    mimetype: string;
+    destination: string;
+    filename: string;
+    path: string;
+    size: number;
+}
+
+// IMPORTANT! Calling this will expect sudo in places in the FS that require sudo
 v1.post("/upload", upload.array("files"), (req: Request, res: Response) => {
     if (!req.files) {
         res.status(400);
     }
-    
-    const files = req.files || [];
-    console.log(files);
-    
-    // for (const file of files) {
-    //     console.log(file);
-    // }
-    
-    res.status(204);
+
+    // Directory to upload the files to
+    const cwd: string[] = JSON.parse(req.body.path);
+
+    const files = (req as any).files as UploadedFile[];
+    files.forEach((file) => {
+        try {
+            // Get the data that was written to the local tmp path
+            const data: Buffer = readFileSync(file.path);
+
+            // Generate the new path in the FS
+            const newPath: string = path.join("/", ...cwd, file.originalname);
+
+            // Write the new file
+            writeFileSync(newPath, data);
+
+            // Delete the tmp file using a relative path
+            rmSync("./" + file.path);
+        } catch (error: any) {
+            if (error.code === 'EACCES') {
+                return res.status(403).json({code: 403, error: "Permission denied."}); // Specific error
+            } else if (error.code === 'ENOSPC') {
+                return res.status(507).json({code: 507, error: "Insufficient storage."}); // Specific error
+            } else if (error instanceof TypeError) {
+                return res.status(400).json({code: 400, error: "Invalid data type."}); // Example of instance check
+            } else {
+                return res.status(500).json({code: 500, error: "Error processing file."}); // Generic error
+            }
+        }
+    })
+
+    res.status(200).json({code: 200, message: "Success"});
 });
 /**
  * Apply the routes to the server

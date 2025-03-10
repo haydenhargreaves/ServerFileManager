@@ -1,5 +1,5 @@
 import "../index.css"
-import {useEffect, useRef, useState} from "react";
+import {useRef, useState} from "react";
 
 /**
  * The list of files that the user is attempting to upload.
@@ -79,15 +79,6 @@ export default function Uploader({close, upload}) {
     const uploadFiles = () => {
         upload(files);
     };
-
-    /**
-     * Debugging
-     */
-    useEffect(() => {
-        files.forEach((file) => {
-            console.log(file)
-        });
-    }, [files]);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

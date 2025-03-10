@@ -84,7 +84,7 @@ export default function Dashboard() {
 
         setSelected([]);
 
-    }, [path]);
+    }, [path, uploading]);
 
 
     // Redirect if the user isn't logged in, otherwise update the state.
@@ -307,24 +307,36 @@ export default function Dashboard() {
                 formData.append('files', _files[i]); // 'files' is the field name
             }
 
+            // Add the current path to the form data.
+            // formData.append('path', "/" + path.join("/"));
+            formData.append('path', JSON.stringify(path));
+
             const resp = await fetch(`${backendUrl}/v1/upload`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
                 },
                 body: formData,
             })
-            
+
             if (!resp.ok) {
-                console.error("SHIT WE WRONG POOKIE");
+                const data = await resp.json()
+                setError(data.error);
+                return data;
             }
-            
             return await resp.json();
         };
-        
-        console.log(files);
-        uploadFiles(files).then((data) => {console.log(data)});
+
+        if (files.length === 0) {
+            setError("Cannot upload nothing. Please select files to upload.");
+            return;
+        }
+
+        uploadFiles(files).then((data) => {
+            if (data.code === 200) {
+                setUploading(false);
+            }
+        });
     };
 
     return (
