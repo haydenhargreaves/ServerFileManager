@@ -107,7 +107,7 @@ export default function Uploader({close, upload}) {
                     </button>
                     <button
                         onClick={uploadFiles}
-                        title="Upload times"
+                        title="Upload files"
                         className="bg-blue-400 hover:bg-blue-500 duration-100 text-white text-sm font-semibold py-1.5 px-3 mt-2 rounded hover:cursor-pointer">
                         Upload
                     </button>

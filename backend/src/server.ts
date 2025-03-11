@@ -12,7 +12,7 @@ import {verifyToken} from "./authenicate";
 import jwt from "jsonwebtoken";
 import {config} from "dotenv";
 import Multer from "multer";
-import {readFileSync, rmSync, writeFileSync} from "fs";
+import {mkdirSync, readFileSync, rmSync, writeFileSync} from "fs";
 
 /**
  * App details
@@ -207,7 +207,7 @@ v1.post("/update", (req: Request, res: Response): void => {
 
     try {
         fs.writeFileSync(path, content);
-        res.status(204);
+        res.status(200).json({code: 200, message: "Success"});
     } catch (error) {
         res.status(500).json({code: 500, error})
     }
@@ -242,7 +242,6 @@ v1.post("/upload", upload.array("files"), (req: Request, res: Response) => {
 
     // Directory to upload the files to
     const cwd: string[] = JSON.parse(req.body.path);
-
     const files = (req as any).files as UploadedFile[];
     files.forEach((file) => {
         try {
@@ -272,6 +271,38 @@ v1.post("/upload", upload.array("files"), (req: Request, res: Response) => {
 
     res.status(200).json({code: 200, message: "Success"});
 });
+
+v1.post("/create", (req: Request, res: Response): void => {
+    // Generate the path to create
+    const {cwd, name} = req.body;
+
+    try {
+        const newPath: string = path.join("/", ...cwd, name);
+        if (name.endsWith("/")) {
+            mkdirSync(newPath, {mode: "644"})
+        } else {
+            console.log("NOT DIR");
+            writeFileSync(newPath, "", {mode: "644"})
+        }
+    } catch (error: any) {
+        if (error.code === 'EACCES') {
+            res.status(403).json({code: 403, error: "Permission denied."}); // Specific error
+            return;
+        } else if (error.code === 'ENOSPC') {
+            res.status(507).json({code: 507, error: "Insufficient storage."}); // Specific error
+            return;
+        } else if (error instanceof TypeError) {
+            res.status(400).json({code: 400, error: "Invalid data type."}); // Example of instance check
+            return;
+        } else {
+            res.status(500).json({code: 500, error: "Error processing directory."}); // Generic error
+            return;
+        }
+    }
+
+    res.status(201).json({code: 201, message: "Success"});
+});
+
 /**
  * Apply the routes to the server
  */

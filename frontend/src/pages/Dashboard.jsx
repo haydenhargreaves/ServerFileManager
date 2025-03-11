@@ -8,6 +8,7 @@ import Editor from "../components/Editor.jsx";
 import ChildrenLoading from "../components/ChildrenLoading.jsx";
 import DownloadLoading from "../components/DownloadLoading.jsx";
 import Uploader from "../components/Uploader.jsx";
+import CreateDirectory from "../components/CreateDirectory.jsx";
 
 export default function Dashboard() {
     // Store the default path
@@ -30,6 +31,7 @@ export default function Dashboard() {
     const [error, setError] = useState(null);
     const [editing, setEditing] = useState("");
     const [uploading, setUploading] = useState(false);
+    const [creating, setCreating] = useState(false);
     const [childrenLoading, setChildrenLoading] = useState(false);
     const [downloadLoading, setDownloadLoading] = useState(false);
     const [contentLoading, setContentLoading] = useState(false);
@@ -84,7 +86,7 @@ export default function Dashboard() {
 
         setSelected([]);
 
-    }, [path, uploading]);
+    }, [path, uploading, creating]);
 
 
     // Redirect if the user isn't logged in, otherwise update the state.
@@ -239,8 +241,10 @@ export default function Dashboard() {
 
         // Send request to server to update the file. This will return nothing
         // so no need for any promise handling.
-        updateContent(editing, newContent).finally(() => {
-            setEditing("");
+        updateContent(editing, newContent).then((data) => {
+            if (data.code === 200) {
+                setEditing("");
+            }
         });
     };
 
@@ -339,11 +343,53 @@ export default function Dashboard() {
         });
     };
 
+    const createDir = () => {
+        setCreating(true);
+    };
+
+    const closeCreate = () => {
+        setCreating(false);
+    };
+
+    /**
+     * Create a directory or file in the backend
+     * @param name {string} Name of new directory/file
+     */
+    const createDirectory = (name) => {
+        const create = async (name, cwd) => {
+            const resp = await fetch(`${backendUrl}/v1/create`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify({name, cwd})
+            });
+
+            if (!resp.ok) {
+                const data = await resp.json()
+                setError(data.error);
+                return data;
+            }
+
+            return await resp.json();
+        };
+
+        create(name, path).then((data) => {
+            if (data.code === 201) {
+                setCreating(false);
+            }
+        }).catch((error) => {
+            setError(error);
+        });
+    };
+
     return (
         <div className="w-full min-h-screen h-screen pb-8">
             <Navbar downloadFiles={downloadFiles} uploadFiles={toggleUploading}/>
             <div className="h-full w-full flex flex-col items-center justify-center pb-8">
                 {downloadLoading && <DownloadLoading/>}
+                {creating && <CreateDirectory close={closeCreate} create={createDirectory}/>}
                 {uploading && <Uploader close={toggleUploading} upload={upload}/>}
 
                 {error && <Error error={error} clear={clearError}/>}
@@ -352,7 +398,7 @@ export default function Dashboard() {
                             loading={contentLoading}/>}
 
                 <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}
-                             enabled={path.length > defaultPath.length}/>
+                             enabled={path.length > defaultPath.length} create={createDir}/>
                 <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
                     {childrenLoading && <ChildrenLoading/>}
                     <DirectoryList dirs={files} showHidden={showHidden} appendPath={appendPath}
