@@ -33,7 +33,7 @@ try {
 /**
  * Invalid file extensions for the file editor.
  */
-const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf", "jpg", "jpeg", "png", "gif", "webm", "webp", "bmp", "mp3", "wav", "mp4", "avi", "zip", "rar", "7z", "iso", "dmg", "class", "pyc", "o", "a", "woff", "woff2", "ttf", "otf", "db", "sqlite", "mdb", "accdb", "psd", "ai", "indd", "blend", "fbx", "unitypackage", "pak", "sav", "msi", "doc", "docx", "dot", "dotx", "docm", "dotm", "rtf", "txt", "xls", "xlsx", "xlsm", "xltx", "xltm", "csv", "ppt", "pptx", "pptm", "potx", "potm", "ppsx", "ppsm", "mdb", "accdb", "accde", "accdt", "pst", "ost", "msg", "one", "onetoc2", "pub", "vsd", "vsdx", "vssx", "vstx", "odc", "oft", "pki", "odg"];
+const INVALID_EXTS: string[] = ["exe", "dll", "obj", "lib", "bin", "dat", "pdf", "jpg", "jpeg", "png", "gif", "webm", "webp", "bmp", "mp3", "wav", "mp4", "avi", "zip", "rar", "7z", "iso", "dmg", "class", "pyc", "o", "a", "woff", "woff2", "ttf", "otf", "db", "sqlite", "mdb", "accdb", "psd", "ai", "indd", "blend", "fbx", "unitypackage", "pak", "sav", "msi", "doc", "docx", "dot", "dotx", "docm", "dotm", "rtf", "xls", "xlsx", "xlsm", "xltx", "xltm", "csv", "ppt", "pptx", "pptm", "potx", "potm", "ppsx", "ppsm", "mdb", "accdb", "accde", "accdt", "pst", "ost", "msg", "one", "onetoc2", "pub", "vsd", "vsdx", "vssx", "vstx", "odc", "oft", "pki", "odg"];
 
 /**
  * Configure cors, this should work for both production and development.
