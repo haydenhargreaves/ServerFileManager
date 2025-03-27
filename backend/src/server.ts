@@ -3,6 +3,7 @@ import {Healthcheck} from "./healthcheck";
 import {printEndpoints, validateHash} from "./utils";
 import {LogRequestMiddleware} from "./log";
 import * as fs from "node:fs";
+import {mkdirSync, readFileSync, renameSync, rmSync, writeFileSync} from "node:fs";
 import {entry} from "./entry";
 import cors from "cors";
 import archiver from "archiver";
@@ -12,13 +13,14 @@ import {verifyToken} from "./authenicate";
 import jwt from "jsonwebtoken";
 import {config} from "dotenv";
 import Multer from "multer";
-import {mkdirSync, readFileSync, rmSync, writeFileSync} from "fs";
 
 /**
  * App details
  */
 const PORT = 5000;
 const APP: Express = express();
+// TODO: BACK TO NORMAL PATH
+// const ROOT: string = "/media/vault";
 const ROOT: string = "/home/azpect";
 
 /**
@@ -43,6 +45,16 @@ const corsOptions: cors.CorsOptions = {
     methods: ["GET", "POST"]
 };
 APP.use(cors(corsOptions));
+
+/**
+ * File upload settings
+ */
+const upload = Multer({
+    dest: "tmp/",
+    limits: {
+        fileSize: 1024 * 1024 * 100
+    },
+});
 
 /**
  * Apply middleware, this must be done before the routes are created.
@@ -213,12 +225,6 @@ v1.post("/update", (req: Request, res: Response): void => {
     }
 });
 
-const upload = Multer({
-    dest: "tmp/",
-    limits: {
-        fileSize: 1024 * 1024 * 100
-    },
-});
 
 /**
  * Custom type for the multer uploads.
@@ -252,7 +258,7 @@ v1.post("/upload", upload.array("files"), (req: Request, res: Response) => {
             const newPath: string = path.join("/", ...cwd, file.originalname);
 
             // Write the new file
-            writeFileSync(newPath, data);
+            writeFileSync(newPath, data, {mode: "666"});
 
             // Delete the tmp file using a relative path
             rmSync("./" + file.path);
@@ -279,10 +285,9 @@ v1.post("/create", (req: Request, res: Response): void => {
     try {
         const newPath: string = path.join("/", ...cwd, name);
         if (name.endsWith("/")) {
-            mkdirSync(newPath, {mode: "644"})
+            mkdirSync(newPath, {recursive: true, mode: "666"})
         } else {
-            console.log("NOT DIR");
-            writeFileSync(newPath, "", {mode: "644"})
+            writeFileSync(newPath, "", {mode: "666"})
         }
     } catch (error: any) {
         if (error.code === 'EACCES') {
@@ -301,6 +306,46 @@ v1.post("/create", (req: Request, res: Response): void => {
     }
 
     res.status(201).json({code: 201, message: "Success"});
+});
+
+/**
+ * Files are not deleted from the file system, just moved to a hidden folder where
+ * they can be recovered if needed.
+ *
+ * The hidden folder will be called `.trash` stored in the root of the mount, and
+ * the files entire paths will be created.
+ *
+ * e.g., Deleting /media/vault/main.txt will get moved to
+ * `/media/vault/.trash/<timstamp>/media/vault/main.txt`
+ * assuming /media/vault is the mounted root.
+ * The timestamp will also be appended to allow files with the same path to be deleted.
+ */
+v1.post("/remove", (req: Request, res: Response): void => {
+    // Get the array of paths and the root
+    const {files, root} = req.body;
+
+    // Stores the name of the trash directory
+    const trashDir: string = ".trash";
+    const timestamp: string = (new Date()).toISOString();
+
+    console.log(timestamp);
+
+    for (const file of files) {
+        const oldPath = path.join("/", ...file);
+        const newPath = path.join("/", ...root, trashDir, timestamp, ...file);
+
+        console.log(oldPath, " -> ", newPath);
+        try {
+            mkdirSync(path.dirname(newPath), {recursive: true, mode: "666"});
+            renameSync(oldPath, newPath)
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({code: 500, message: `Failed to delete. ${error}`})
+            return;
+        }
+    }
+
+    res.status(201).json({code: 201, message: `Deleted ${files.length} files.`});
 });
 
 /**

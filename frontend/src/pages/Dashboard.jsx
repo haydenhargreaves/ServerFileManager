@@ -12,7 +12,9 @@ import CreateDirectory from "../components/CreateDirectory.jsx";
 
 export default function Dashboard() {
     // Store the default path
-    const defaultPath = ["media", "vault"];
+    // TODO: BACK TO NORMAL PATH
+    // const defaultPath = ["media", "vault"];
+    const defaultPath = ["home", "azpect"];
 
     /**
      * URL To the backend web server.
@@ -387,6 +389,49 @@ export default function Dashboard() {
         });
     };
 
+    /**
+     * Remove the selected files.
+     */
+    const removeSelected = () => {
+        if (selected.length === 0) {
+            return setError("Please select files or directories to delete");
+        }
+
+        const remove = async (files) => {
+            const resp = await fetch(`${backendUrl}/v1/remove`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify({files, root: defaultPath})
+            });
+
+            if (!resp.ok) {
+                const data = await resp.json()
+                setError(data.error);
+                return data;
+            }
+
+            return await resp.json();
+        };
+
+        // Files are stored as arrays of paths
+        const files = [];
+        for (const file of selected) {
+            files.push([...path, file]);
+        }
+
+        remove(files).then((data) => {
+            if (data.code === 201) {
+                console.log(data);
+                setSelected([]);
+            }
+        }).catch((error) => {
+            setError(error);
+        });
+    };
+
     return (
         <div className="w-full min-h-screen h-screen pb-8">
             <Navbar downloadFiles={downloadFiles} uploadFiles={toggleUploading}/>
@@ -401,10 +446,12 @@ export default function Dashboard() {
                             loading={contentLoading}/>}
 
                 <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}
-                             enabled={path.length > defaultPath.length} create={createDir}/>
+                             enabled={path.length > defaultPath.length} create={createDir} remove={removeSelected}
+                             removeEnable={selected.length > 0}/>
                 <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
                     {childrenLoading && <ChildrenLoading/>}
                     <DirectoryList dirs={files} showHidden={showHidden} appendPath={appendPath}
+                        // TODO: Rework the toggleSelected functionality
                                    toggleSelected={toggleSelected} toggleEditing={toggleEditing}/>
                 </div>
                 <div className="w-2/3 flex justify-end items-center">
