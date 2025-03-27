@@ -82,6 +82,9 @@ export default function Dashboard() {
             setFiles(data);
         }).finally(() => {
             setChildrenLoading(false);
+        }).catch((err) => {
+            setError("Failed to fetch data from server.");
+            console.error(err);
         });
 
         setSelected([]);
