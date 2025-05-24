@@ -20,8 +20,8 @@ import Multer from "multer";
 const PORT = 5000;
 const APP: Express = express();
 // TODO: BACK TO NORMAL PATH
-// const ROOT: string = "/media/vault";
-const ROOT: string = "/home/azpect";
+const ROOT: string = "/media/vault";
+// const ROOT: string = "/home/azpect";
 
 /**
  * Configure the .env file, this is for testing only, should be ignored in production.
