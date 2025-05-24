@@ -13,8 +13,8 @@ import CreateDirectory from "../components/CreateDirectory.jsx";
 export default function Dashboard() {
   // Store the default path
   // TODO: BACK TO NORMAL PATH
-  // const defaultPath = ["media", "vault"];
-  const defaultPath = ["home", "azpect"];
+  const defaultPath = ["media", "vault"];
+  // const defaultPath = ["home", "azpect"];
 
   /**
    * URL To the backend web server.
