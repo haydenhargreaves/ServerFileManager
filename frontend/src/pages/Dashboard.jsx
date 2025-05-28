@@ -13,8 +13,8 @@ import CreateDirectory from "../components/CreateDirectory.jsx";
 export default function Dashboard() {
   // Store the default path
   // TODO: BACK TO NORMAL PATH
-  const defaultPath = ["media", "vault"];
-  // const defaultPath = ["home", "azpect"];
+  // const defaultPath = ["media", "vault"];
+  const defaultPath = ["home", "azpect"];
 
   /**
    * URL To the backend web server.
@@ -83,11 +83,11 @@ export default function Dashboard() {
     getData(tkn).then((data) => {
       setFiles(data);
     }).finally(() => {
-      setChildrenLoading(false);
-    }).catch((err) => {
-      setError("Failed to fetch data from server.");
-      console.error(err);
-    });
+        setChildrenLoading(false);
+      }).catch((err) => {
+        setError("Failed to fetch data from server.");
+        console.error(err);
+      });
 
     setSelected([]);
   };
@@ -208,8 +208,8 @@ export default function Dashboard() {
     download(targets).catch((err) => {
       setError(`Download error: ${err}.`)
     }).finally(() => {
-      setDownloadLoading(false)
-    });
+        setDownloadLoading(false)
+      });
   };
 
   /**
@@ -289,8 +289,8 @@ export default function Dashboard() {
           setError(data.error);
         }
       }).finally(() => {
-        setContentLoading(false)
-      });
+          setContentLoading(false)
+        });
     }
 
   }, [editing]);
@@ -388,8 +388,8 @@ export default function Dashboard() {
         setCreating(false);
       }
     }).catch((error) => {
-      setError(error);
-    });
+        setError(error);
+      });
   };
 
   /**
@@ -434,33 +434,54 @@ export default function Dashboard() {
         fetchFiles();
       }
     }).catch((error) => {
-      setError(error);
-    });
+        setError(error);
+      });
   };
 
   return (
     <div className="w-full min-h-screen h-screen pb-8">
       <Navbar downloadFiles={downloadFiles} uploadFiles={toggleUploading} />
       <div className="h-full w-full flex flex-col items-center justify-center pb-8">
+
         {downloadLoading && <DownloadLoading />}
         {creating && <CreateDirectory close={closeCreate} create={createDirectory} />}
         {uploading && <Uploader close={toggleUploading} upload={upload} />}
 
         {error && <Error error={error} clear={clearError} />}
-        {(editing !== "" && !error) &&
-          <Editor content={editingFileContent} path={editing} exit={exitFile} saveExit={exitAndSaveFile}
-            loading={contentLoading} />}
+        {
+          (editing !== "" && !error) &&
+            <Editor
+              content={editingFileContent}
+              path={editing}
+              exit={exitFile}
+              saveExit={exitAndSaveFile}
+              loading={contentLoading}
+            />
+        }
 
-        <PathDisplay path={path} updatePath={updatePath} backHome={backHome} backArrow={backArrow}
-          enabled={path.length > defaultPath.length} create={createDir} remove={removeSelected}
-          removeEnable={selected.length > 0} />
-        <div className="w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
+        <PathDisplay
+          path={path}
+          updatePath={updatePath}
+          backHome={backHome}
+          backArrow={backArrow}
+          enabled={path.length > defaultPath.length}
+          create={createDir}
+          remove={removeSelected}
+          removeEnable={selected.length > 0}
+        />
+
+        <div className="w-9/10 lg:w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
           {childrenLoading && <ChildrenLoading />}
-          <DirectoryList dirs={files} showHidden={showHidden} appendPath={appendPath}
-            // TODO: Rework the toggleSelected functionality
-            toggleSelected={toggleSelected} toggleEditing={toggleEditing} />
+          <DirectoryList
+            dirs={files}
+            showHidden={showHidden}
+            appendPath={appendPath}
+            toggleSelected={toggleSelected} // TODO: Rework the toggleSelected functionality
+            toggleEditing={toggleEditing}
+          />
         </div>
-        <div className="w-2/3 flex justify-end items-center">
+
+        <div className="w-9/10 lg:w-2/3 flex justify-end items-center">
           <label className="text-sm mx-2" htmlFor="showHiddenItems">Show Hidden Items</label>
           <input
             className="p-2"

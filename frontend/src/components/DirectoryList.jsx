@@ -8,13 +8,16 @@ import Directory from "./Directory.jsx";
  * @param toggleSelected {function(string)} Function to toggle selection status.
  * @constructor
  */
-export default function DirectoryList({dirs, showHidden, appendPath, toggleSelected, toggleEditing}) {
-    return (
-        <>
-            {dirs.map((dir, idx) => <Directory key={idx} entry={dir} showHidden={showHidden} appendPath={appendPath}
-                                               toggleSelected={toggleSelected} toggleEditing={toggleEditing}/>)}
-        </>
-    )
-
-
+export default function DirectoryList({ dirs, showHidden, appendPath, toggleSelected, toggleEditing }) {
+  return <>
+    {dirs.map((dir, idx) =>
+      <Directory
+        key={idx}
+        entry={dir}
+        showHidden={showHidden}
+        appendPath={appendPath}
+        toggleSelected={toggleSelected}
+        toggleEditing={toggleEditing} />
+    )}
+  </>
 }
