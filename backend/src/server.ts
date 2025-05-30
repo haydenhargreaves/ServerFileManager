@@ -3,7 +3,7 @@ import { Healthcheck } from "./healthcheck";
 import { printEndpoints, validateHash } from "./utils";
 import { LogRequestMiddleware } from "./log";
 import * as fs from "node:fs";
-import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { entry } from "./entry";
 import cors from "cors";
 import archiver from "archiver";
@@ -360,6 +360,42 @@ v1.post("/remove", (req: Request, res: Response): void => {
   }
 
   res.status(201).json({ code: 201, message: `Deleted ${files.length} files.` });
+});
+
+v1.post("/move", (req: Request, res: Response): void => {
+  // Get the array of paths and the root
+  const { oldPath, newPath } = req.body;
+
+  try {
+    // Get path of new path
+    const newDirectory = path.dirname(newPath);
+
+    // Ensure the directory exists
+    if (!existsSync(newDirectory)) {
+      mkdirSync(newDirectory, { recursive: true });
+      console.log(`Created directory: ${newDirectory}`);
+    }
+
+    // Move the file
+    renameSync(oldPath, newPath);
+    console.log(`File moved from ${oldPath} to ${newPath}`);
+
+    res.status(200).json({ code: 200 });
+  } catch (err: any) {
+    console.error("Error moving file:", err);
+    // You might want to send a more specific error message based on 'err.code'
+    if (err.code === 'EXDEV') {
+      // This specific error means moving across different file systems.
+      // Synchronous fallback would be more complex (read/write stream synchronously),
+      // which is why async is preferred here. For synchronous, you'd generally
+      // just fail or implement a blocking copy/delete.
+      res.status(500).json({ code: 500, error: "Error: Cannot move across different file systems synchronously. Try copying and deleting." });
+    } else if (err.code === 'ENOENT') {
+      res.status(404).json({ code: 404, error: "Error: Source file or destination path not found." });
+    } else {
+      res.status(500).json({ code: 500, error: `Failed to move file: ${err.message}` });
+    }
+  }
 });
 
 /**

@@ -9,6 +9,7 @@ import ChildrenLoading from "../components/ChildrenLoading.jsx";
 import DownloadLoading from "../components/DownloadLoading.jsx";
 import Uploader from "../components/Uploader.jsx";
 import CreateDirectory from "../components/CreateDirectory.jsx";
+import MoveDirectory from "../components/MoveDirectory.jsx";
 
 export default function Dashboard() {
   // ---- CONSTANTS ---- //
@@ -50,6 +51,8 @@ export default function Dashboard() {
   const [editing, setEditing] = useState("");
   const [uploading, setUploading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [moving, setMoving] = useState(false);
+
 
   // Loading spinners
   const [childrenLoading, setChildrenLoading] = useState(false);
@@ -117,6 +120,16 @@ export default function Dashboard() {
    * Hide the creating modal.
    */
   const closeCreate = () => setCreating(false);
+
+  /** 
+   * Hide the moving modal.
+   */
+  const closeMoving = () => setMoving(false);
+
+  /** 
+   * Show the moving modal.
+   */
+  const showMoving = () => setMoving(true);
 
   // ---- HANDLERS --- //
 
@@ -225,7 +238,6 @@ export default function Dashboard() {
 
     remove(files).then((data) => {
       if (data.code === 201) {
-        console.log(data);
         setSelected([]);
 
         // Fetch the new files & deselect everything
@@ -233,6 +245,21 @@ export default function Dashboard() {
       }
     }).catch((error) => {
       setError(error);
+    });
+  };
+
+  const moveSelected = (newPath) => {
+    const oldPath = "/" + [...path, selected].join("/");
+
+    console.log("@oldPath", oldPath);
+    console.log("@newPath", newPath);
+
+    move(oldPath, newPath).then((data) => {
+      if (data.code === 200) {
+        setMoving(false);
+        setSelected([]);
+        fetchFiles();
+      }
     });
   };
 
@@ -399,9 +426,30 @@ export default function Dashboard() {
       return data;
     }
 
-    return await resp.json();
+    const json = await resp.json();
+    return json;
   };
 
+  const move = async (oldPath, newPath) => {
+    const resp = await fetch(`${backendUrl}/v1/move`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ oldPath, newPath })
+    });
+
+    if (!resp.ok) {
+      const data = await resp.json()
+      setError(data.error);
+      return data;
+    }
+
+    const json = await resp.json();
+    return json;
+
+  }
   // ---- EFFECTS ---- //
 
   // Update the file list from the server each time an action requires 
@@ -494,6 +542,7 @@ export default function Dashboard() {
         {downloadLoading && <DownloadLoading />}
         {creating && <CreateDirectory close={closeCreate} create={createDirectory} />}
         {uploading && <Uploader close={toggleUploading} upload={upload} />}
+        {moving && <MoveDirectory close={closeMoving} move={moveSelected} path={[...path, selected[0]]} />}
 
         {error && <Error error={error} clear={clearError} />}
         {
@@ -516,6 +565,8 @@ export default function Dashboard() {
           create={createDir}
           remove={removeSelected}
           removeEnable={selected.length > 0}
+          move={showMoving}
+          moveEnabled={selected.length === 1}
         />
 
         <div className="w-9/10 lg:w-2/3 h-5/6 overflow-y-auto border-1 border-gray-300">
