@@ -1,5 +1,5 @@
 import "../index.css"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function FileIcon() {
   return <>
@@ -32,8 +32,12 @@ function DirectoryIcon() {
  * @returns {{}}
  * @constructor
  */
-export default function Directory({ entry, showHidden, appendPath, toggleSelected, toggleEditing }) {
-  const [selected, setSelected] = useState(false);
+export default function Directory({ entry, selected, showHidden, appendPath, toggleSelected, toggleEditing }) {
+  const [_selected, setSelected] = useState(false);
+
+  useEffect(() => {
+    setSelected(selected);
+  }, [selected]);
 
   const handleClick = () => {
     if (entry.directory) {
@@ -45,7 +49,7 @@ export default function Directory({ entry, showHidden, appendPath, toggleSelecte
 
   const handleCheck = () => {
     toggleSelected(entry.name);
-    setSelected(!selected);
+    setSelected(!_selected);
   }
 
   // This is temporary, eventually I will have a real data model that stores
@@ -56,11 +60,11 @@ export default function Directory({ entry, showHidden, appendPath, toggleSelecte
   }
 
   return <>
-    <label className={`w-full hover:bg-gray-300 flex ${selected ? "bg-blue-300" : "bg-gray-100"}`}>
+    <label className={`w-full hover:bg-gray-300 flex ${_selected ? "bg-blue-300" : "bg-gray-100"}`}>
       <input
         className="mx-2 peer checked:bg-blue-300"
         type="checkbox"
-        checked={selected}
+        checked={_selected}
         onChange={handleCheck} />
       <div className="w-full flex bg-gray-100 peer-checked:bg-blue-300 hover:bg-gray-300 peer-hover:bg-gray-300">
         <button className="flex items-center" onClick={handleClick}>

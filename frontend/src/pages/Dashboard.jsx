@@ -108,7 +108,10 @@ export default function Dashboard() {
   /** 
    * Show the creating modal.
    */
-  const createDir = () => setCreating(true);
+  const createDir = () => {
+    setSelected([]);
+    setCreating(true);
+  }
 
   /** 
    * Hide the creating modal.
@@ -442,8 +445,7 @@ export default function Dashboard() {
 
   /**
    * This will be where the magic happens, where the files are upload
-   * @param files {object[]}
-   * TODO: Actually do something here...
+   * @param files {object[]} - List of files to upload.
    */
   const upload = (files) => {
     const uploadFiles = async (_files) => {
@@ -524,6 +526,7 @@ export default function Dashboard() {
             appendPath={appendPath}
             toggleSelected={toggleSelected} // TODO: Rework the toggleSelected functionality
             toggleEditing={toggleEditing}
+            selected={selected}
           />
         </div>
 
