@@ -8,6 +8,7 @@
 - [ ] Image display (will require some kind of file server)
 - [ ] Markdown rendering (quite a reach)
 - [x] Mobile friendly
+- [ ] Fix selection bug
       
 ## Notes
 
